@@ -86,7 +86,7 @@ public class Dice_Main {
 		} else {
 			ifSuccess = 0;
 		}
-		totalValue = 15;
+		totalValue = 20;
 		return ifSuccess + Arrays.toString(inThrow) + " Suma oczek: " + totalValue;
 	}
 
@@ -145,70 +145,6 @@ public class Dice_Main {
 	}
 
 	//
-	static int[] throwXTimes(int throwNumber) {
-		int[] outcome = new int[2];
-		int[] result = new int[5];
-		result = fiveDices();
-		String resultName = " ";
-		for (int i = 0; i < throwNumber; i++) {
-			System.out.print("Rzuciliśmy " + (i + 1) + " raz i otrzymaliśmy :");
-			print(result);
-			if (pocker(result).substring(0, 1).equals("1")) {
-				throwValue = Integer.parseInt(pocker(result).substring(29));
-				resultName = "8POOKEEER!!!";
-				break;
-			}
-			if (fourKind(result).substring(0, 1).equals("1")) {
-				throwValue = Integer.parseInt(fourKind(result).substring(29));
-				result = fourGoodEqual(result);
-				resultName = "7Kareta!";
-				continue;
-			}
-			if (full(result).substring(0, 1).equals("1")) {
-				throwValue = Integer.parseInt(full(result).substring(29));
-				resultName = "6Mamy Fulla";
-				break;
-			}
-			if (smallStreet(result).substring(0, 1).equals("1")) {
-				throwValue = Integer.parseInt(smallStreet(result).substring(29));
-				resultName = "3Mały Street";
-				break;
-			}
-			if (largeStreet(result).substring(0, 1).equals("1")) {
-				throwValue = Integer.parseInt(largeStreet(result).substring(29));
-				resultName = "4Duży Street";
-				break;
-			}
-			if (threeKind(result).substring(0, 1).equals("1")) {
-				throwValue = Integer.parseInt(threeKind(result).substring(29));
-				result = threeGood(result);
-				resultName = "5Trójka";
-				continue;
-			}
-			if (twoPairs(result).substring(0, 1).equals("1")) {
-				throwValue = Integer.parseInt(twoPairs(result).substring(29));
-				result = fourGoodDifferent(result);
-				resultName = "2Dwie pary";
-				continue;
-			}
-
-			if (pair(result).substring(0, 1).equals("1")) {
-				throwValue = Integer.parseInt(pair(result).substring(29));
-				result = twoGood(result);
-				resultName = "1Para";
-				continue;
-			}
-
-			result = oneGood(result);
-			resultName = "0Nic";
-			throwValue = 0;
-			continue;
-		}
-		outcome[0] = Integer.parseInt(resultName.substring(0, 1));
-		outcome[1] = throwValue;
-		System.out.println(resultName.substring(1) + "\nUzyskaliśmy punktów: " + throwValue);
-		return outcome;
-	}
 
 	static int[] goodEqualDices(int[] inThrow, int nrOfGood, int goodNumber1) {
 
@@ -280,8 +216,7 @@ public class Dice_Main {
 		String[] firstColumn = { "    | ", "SZ  | ", "1P  | ", "2P  | ", "MS  | ", "DS  | ", "3   | ", "F   | ",
 				"K   | ", "P   | ", "Suma| " };
 
-		
-		System.out.println("\n" + heading +"\n");
+		System.out.println("\n" + heading + "\n");
 
 		for (int i = 0; i < mainTable.length + 1; i++) {
 			String row = firstColumn[i];
@@ -291,24 +226,31 @@ public class Dice_Main {
 					for (int k = 0; k < 8 - playersNames[j].length(); k++) {
 						row += " ";
 					}
-					
+
 				} else if (i < 10) {
-					row += mainTable[i - 1][j];
-					for (int l = 0; l < 8 - Integer.toString(mainTable[i - 1][j]).length(); l++) {
+					String value;
+					if (mainTable[i - 1][j] >= 0) {
+						value = "" + mainTable[i - 1][j];
+					} else {
+						value = "--";
+					}
+					row += value;
+					for (int l = 0; l < 8 - value.length(); l++) {
 						row += " ";
 					}
 				} else {
 					int sum = 0;
 					for (int m = 0; m < 9; m++) {
-						sum += mainTable[m][j];
-						
+						if (mainTable[m][j] > 0) {
+							sum += mainTable[m][j];
+						}
 					}
 					row += sum;
 					for (int l = 0; l < 8 - Integer.toString(sum).length(); l++) {
 						row += " ";
 
 					}
-					
+
 				}
 				row += " | ";
 			}
@@ -316,6 +258,95 @@ public class Dice_Main {
 
 		}
 
+	}
+
+	static int cancelPosition(int[][] mainTable, int playerNumber) {
+		int[] cancelOrder = { 8, 7, 3, 4, 6, 1, 5, 2, 0 }; // kolejność wykreślania
+		int canceledPosition = 0;
+		for (int i = 0; i < cancelOrder.length; i++) {
+			if (mainTable[i][playerNumber] == 0) {
+				canceledPosition = i;
+				break;
+			}
+		}
+		return canceledPosition;
+	}
+
+	static int[] throwXTimes(int throwNumber, int[][] mainTable, int playerNumber) {
+		int[] outcome = new int[2];
+		int[] result = new int[5];
+		result = fiveDices();
+		String resultName = " ";
+		for (int i = 0; i < throwNumber; i++) {
+			System.out.print("Rzuciliśmy " + (i + 1) + " raz i otrzymaliśmy :");
+			print(result);
+			if (mainTable[8][playerNumber] == 0 && pocker(result).substring(0, 1).equals("1")) {
+				throwValue = Integer.parseInt(pocker(result).substring(29));
+				resultName = "8POOKEEER!!!";
+				break;
+			}
+			if (mainTable[7][playerNumber] == 0 && fourKind(result).substring(0, 1).equals("1")) {
+				throwValue = Integer.parseInt(fourKind(result).substring(29));
+				result = fourGoodEqual(result);
+				resultName = "7Kareta!";
+				continue;
+			}
+			if (mainTable[6][playerNumber] == 0 && full(result).substring(0, 1).equals("1")) {
+				throwValue = Integer.parseInt(full(result).substring(29));
+				resultName = "6Mamy Fulla";
+				break;
+			}
+			if (mainTable[3][playerNumber] == 0 && smallStreet(result).substring(0, 1).equals("1")) {
+				throwValue = Integer.parseInt(smallStreet(result).substring(29));
+				resultName = "3Mały Street";
+				break;
+			}
+			if (mainTable[4][playerNumber] == 0 && largeStreet(result).substring(0, 1).equals("1")) {
+				throwValue = Integer.parseInt(largeStreet(result).substring(29));
+				resultName = "4Duży Street";
+				break;
+			}
+			if (mainTable[5][playerNumber] == 0 && threeKind(result).substring(0, 1).equals("1")) {
+				throwValue = Integer.parseInt(threeKind(result).substring(29));
+				result = threeGood(result);
+				resultName = "5Trójka";
+				continue;
+			}
+			if (mainTable[2][playerNumber] == 0 && twoPairs(result).substring(0, 1).equals("1")) {
+				throwValue = Integer.parseInt(twoPairs(result).substring(29));
+				result = fourGoodDifferent(result);
+				resultName = "2Dwie pary";
+				continue;
+			}
+
+			if (mainTable[1][playerNumber] == 0 && pair(result).substring(0, 1).equals("1")) {
+				throwValue = Integer.parseInt(pair(result).substring(29));
+				result = twoGood(result);
+				resultName = "1Para";
+				continue;
+			}
+
+			if (mainTable[0][playerNumber] == 0 && i == throwNumber - 1) {
+				throwValue = Integer.parseInt(pair(result).substring(29));
+				resultName = "0Szansa";
+				break;
+			}
+			
+			if (mainTable[0][playerNumber] == 0 && i < throwNumber - 1) {
+				throwValue = Integer.parseInt(pair(result).substring(29));
+				result = oneGood(result);
+				resultName = "0Nic ciekawego";
+				throwValue = 0;
+				continue;
+				}
+			
+			throwValue = -1;
+			resultName = cancelPosition(mainTable, playerNumber) + "Wykreślamy";
+		}
+		outcome[0] = Integer.parseInt(resultName.substring(0, 1));
+		outcome[1] = throwValue;
+		System.out.println(resultName.substring(1) + "\nUzyskaliśmy punktów: " + throwValue);
+		return outcome;
 	}
 
 	public static void mainGame( /* int humanPlayerNumber , */ String[] playersNames, int numberOfThrows) {
@@ -328,36 +359,29 @@ public class Dice_Main {
 		System.out.println("Naciśnij ENTER");
 		scan.nextLine();
 
-		for (int i = 0; i < 8; i++) {
+		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < numOfPlayers; j++) {
 				clearConsole();
 				printTable(table, playersNames, heading);
 				System.out.println("\n" + "Teraz rzuca " + playersNames[j]);
-				int[] outcome = throwXTimes(numberOfThrows);
+				int[] outcome = throwXTimes(numberOfThrows, table, j);
 				table[outcome[0]][j] = outcome[1];
 				System.out.println("Naciśnij ENTER");
 				scan.nextLine();
 
 			}
-
 			// print tabela - wejście tabela główna i tabela imion
 			// player 1 - CPU - wejście tabela, numer gracza, poziom ryzyka, wyjście tabela
 			// player 2 - CPU - wejście tabela i numer gracza, poziom ryzyka, wyjście tabela
 
 		}
+		printTable(table, playersNames, heading);
 
 	}
 
 	public final static void clearConsole() {
 
-		System.out.println("");
-		System.out.println("");
-		System.out.println("");
-		System.out.println("");
-		System.out.println("");
-		System.out.println("");
-		System.out.println("");
-		System.out.println("");
+		
 		try {
 			final String os = System.getProperty("os.name");
 
